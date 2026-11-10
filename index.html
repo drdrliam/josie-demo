@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="David's journey">
 <meta name="theme-color" content="#1c1c1e">
-<title>David's journey: 20 minute demo</title>
+<title>David's MyChart journey: GSTT</title>
 <style>
 @font-face {
   font-family: "RM Neue";
@@ -1248,6 +1248,40 @@ button.notification:active { transform: scale(0.975); background: rgba(255,255,2
   box-shadow: 0 1px 0.5px rgba(11,20,26,0.13); margin: 6px 0 2px;
 }
 .wa-in.past { opacity: 0.92; }
+
+/* ================================================================
+   GSTT MYCHART DEMO: Messages thread
+   ================================================================ */
+.lock-stage { display: none; }
+.sms {
+  --sms-bg: #FFFFFF; --sms-in: #E9E9EB; --sms-text: #000000; --sms-meta: #8A8A8E; --sms-link: #0A66D8;
+  background: var(--sms-bg); color: var(--sms-text); font-family: var(--sf);
+}
+.sms .apple-statusbar { color: var(--sms-text); }
+.sms-head {
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 2px 16px 10px; border-bottom: 0.5px solid rgba(0,0,0,0.12); background: #F7F7F7; position: relative;
+}
+.sms-back { position: absolute; left: 12px; top: 14px; color: var(--sms-link); }
+.sms-avatar {
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  background: linear-gradient(#A5ABB8, #868C99); color: #fff; font-weight: 600; font-size: 15px;
+}
+.sms-name { font-size: 12px; color: var(--sms-text); }
+.sms-thread { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px 12px 16px; display: flex; flex-direction: column; gap: 6px; }
+.sms-when { align-self: center; font-size: 11.5px; color: var(--sms-meta); margin: 10px 0 2px; }
+.sms-when b { font-weight: 600; }
+.sms-bubble {
+  align-self: flex-start; max-width: 82%; background: var(--sms-in); border-radius: 18px;
+  padding: 8px 12px; font-size: 15.5px; line-height: 1.32; white-space: pre-line;
+  animation: waIn 260ms cubic-bezier(0.22,1,0.36,1);
+}
+.sms-bubble a { color: var(--sms-link); text-decoration: underline; overflow-wrap: break-word; }
+.sms-compose { flex: 0 0 auto; padding: 8px 12px 4px; }
+.sms-compose span { display: block; border: 1px solid #D1D1D6; border-radius: 18px; padding: 7px 14px; color: var(--sms-meta); font-size: 15px; }
+.sms .home-indicator { color: var(--sms-text); }
+.wa-btn.danger { color: #C4382F; }
+.wa-btn.danger.used { color: var(--wa-meta); }
 </style>
 </head>
 <body>
@@ -1309,13 +1343,13 @@ window.addEventListener("error", function (e) {
   var DEMO = {
     patient:   { firstName: "David", lastName: "Whitcombe", age: 64 },
     trust:     {
-      name: "Royal Free London NHS Foundation Trust",
-      short: "RFL",            /* the trust's own abbreviation for itself */
-      senderId: "RFL",         /* fits the 11-character SMS sender limit */
+      name: "Guy's and St Thomas' NHS Foundation Trust",
+      short: "GSTT",           /* the trust's own abbreviation for itself */
+      senderId: "GSTT",        /* fits the 11-character SMS sender limit */
       /* Every portal link is built from this, so the domain changes once.
          Deliberately fake, per the canon: RFL is a real trust. */
       domain: "patients.example.nhs.uk",
-      site: "Royal Free Hospital"
+      site: "St Thomas' Hospital"
     },
     specialty: "Cardiology",
     clinician: "Dr Cox",                      /* the consultant, per the canon */
@@ -1386,7 +1420,7 @@ window.addEventListener("error", function (e) {
       dateLong: "Tue 12th January 2027",
       dateShort: "Tue 12 Jan",
       time: "9:45am",
-      site: "Royal Free Hospital"
+      site: "St Thomas' Hospital"
     }
   };
 
@@ -3422,7 +3456,7 @@ window.addEventListener("error", function (e) {
 
   /* Fictional test details. NHS numbers starting 999 are test numbers. */
   var WA = {
-    ref: "RFL-2611904",
+    ref: "GST-2611904",
     dob: "14/03/1962",
     nhs: "999 123 4567",
     time: "14:05",
@@ -3469,7 +3503,7 @@ window.addEventListener("error", function (e) {
       btns = '<div class="wa-btns">';
       for (var i = 0; i < buttons.length; i++) {
         var b = buttons[i];
-        btns += '<button type="button" class="wa-btn' + (b.used ? " used" : "") + '"' +
+        btns += '<button type="button" class="wa-btn' + (b.danger ? " danger" : "") + (b.used ? " used" : "") + '"' +
           (b.used ? "" : (b.goto ? ' data-goto="' + b.goto + '"' : ' data-wa="' + b.act + '"')) + '>' +
           b.label + '</button>';
       }
@@ -3710,7 +3744,292 @@ window.addEventListener("error", function (e) {
     };
   }
 
+
+  /* ================================================================
+     GSTT MYCHART DEMO
+     Sign-up wording follows the GSTT "Get started with MyChart" page:
+     NHS App users log in with the same details; everyone else opens the
+     MyChart app and chooses "new user". No portal link before the invite.
+     ================================================================ */
+  var MYCHART_URL = "https://mychart.gstt.nhs.uk/GSTT/Authentication/Login";
+  var MYCHART_LABEL = "mychart.gstt.nhs.uk";
+  /* Sign-up address from the GSTT "Get started with MyChart" page */
+  var SIGNUP_URL = "https://mychart.gstt.nhs.uk/GSTT/Signup";
+  var SIGNUP_LABEL = "mychart.gstt.nhs.uk/GSTT/Signup";
+  var G_SMS = [
+    { id: "accepted", at: "smsFallback",
+      preview: "Your referral to the cardiology team at St Thomas' Hospital has been accepted. Tap to see what happens next.",
+      text: "Hello David. Your referral to the cardiology team at St Thomas' Hospital has been accepted. " +
+            "We sent you this message in the NHS App on Wednesday, but it has not been read, so we are sending it by text.\n\n" +
+            "Please sign up to MyChart now. It is where you will book and manage your appointments and read your letters.\n\n" +
+            "How to sign up:\n" +
+            "1. If you use the NHS App, log in to MyChart with the same details.\n" +
+            "2. If not, sign up online at __SIGNUP__ or download the MyChart app and choose “new user”.\n" +
+            "3. Add your details to confirm it’s you, then set up two-step authentication.\n\n" +
+            "Guy's and St Thomas' NHS Foundation Trust" },
+    { id: "invite", at: "bookingInvite",
+      preview: "Your cardiology appointment is ready to book. Book it in MyChart: " + MYCHART_LABEL,
+      text: "Hello David. You can now book your cardiology appointment at St Thomas' Hospital. " +
+            "Choose a date and time that suits you in MyChart:\n__LINK__\n\n" +
+            "Guy's and St Thomas' NHS Foundation Trust" },
+    { id: "call", at: "bookingChaser",
+      preview: "You have not booked your cardiology appointment yet, so we will call you to book it.",
+      text: "Hello David. You have not booked your cardiology appointment yet, so we will call you in the next few days to book it with you. " +
+            "The call will come from Guy's and St Thomas'. If you would rather book it yourself, you can still do it in MyChart.\n\n" +
+            "Guy's and St Thomas' NHS Foundation Trust" }
+  ];
+  function gSmsIndex(id) { for (var i = 0; i < G_SMS.length; i++) if (G_SMS[i].id === id) return i; throw new Error(id); }
+
+  DEMO.timeline.smsFallback = { date: "Friday 2 October", time: "9:12" };
+
+  /* A plain blue tile standing in for the NHS App icon (not the NHS logo). */
+  function nhsAppIcon() {
+    return '<svg width="38" height="38" viewBox="0 0 38 38" aria-hidden="true"><rect width="38" height="38" rx="8.6" fill="#005EB8"/>' +
+      '<path d="M19 27.5s-8.5-5.1-8.5-11a4.6 4.6 0 0 1 8.5-2.5 4.6 4.6 0 0 1 8.5 2.5c0 5.9-8.5 11-8.5 11Z" fill="#fff"/></svg>';
+  }
+  function nhsNotification(when, tappable) {
+    return (tappable ? '<button type="button" class="notification" data-go="next">' : '<div class="notification">') +
+      '<span class="notif-icon">' + nhsAppIcon() + '</span>' +
+      '<span class="notif-main">' +
+        '<span class="notif-meta"><span>NHS App</span><span>' + when + '</span></span>' +
+        '<span class="notif-title">New message</span>' +
+        '<span class="notif-body">You have a new message from Guy\u2019s and St Thomas\u2019 NHS Foundation Trust about your referral.</span>' +
+      '</span>' + (tappable ? '</button>' : '</div>');
+  }
+  function lockShell(t, notes) {
+    return '' +
+      '<div class="surface apple-lock">' +
+        '<div class="apple-wallpaper"></div>' +
+        statusBar("") +
+        '<div class="lock-body">' +
+          '<div class="lock-head">' +
+            '<svg class="padlock" width="15" height="19" viewBox="0 0 15 19" fill="none" stroke="currentColor" stroke-width="1.7">' +
+              '<rect x="1" y="7.6" width="13" height="10.4" rx="3.2" fill="currentColor" stroke="none"/>' +
+              '<path d="M4.1 7.6V5.1a3.4 3.4 0 0 1 6.8 0v2.5" stroke-linecap="round"/>' +
+            '</svg>' +
+            '<p class="lock-date">' + t.date + '</p>' +
+            '<p class="lock-clock">' + t.time + '</p>' +
+          '</div>' +
+          '<div class="lock-notifications">' + notes + '</div>' +
+          homeIndicator() +
+        '</div>' +
+      '</div>';
+  }
+  /* David gets the NHS App message first and leaves it unread. */
+  function gNhsLock() { return lockShell(DEMO.timeline.referralAccepted, nhsNotification("now", false)); }
+
+  function gLock(id) {
+    return function () {
+      var m = G_SMS[gSmsIndex(id)], t = DEMO.timeline[m.at];
+      var older = id === "accepted" ? nhsNotification("2d ago", false) : "";
+      return '' +
+        '<div class="surface apple-lock">' +
+          '<div class="apple-wallpaper"></div>' +
+          statusBar("") +
+          '<div class="lock-body">' +
+            '<div class="lock-head">' +
+              '<svg class="padlock" width="15" height="19" viewBox="0 0 15 19" fill="none" stroke="currentColor" stroke-width="1.7">' +
+                '<rect x="1" y="7.6" width="13" height="10.4" rx="3.2" fill="currentColor" stroke="none"/>' +
+                '<path d="M4.1 7.6V5.1a3.4 3.4 0 0 1 6.8 0v2.5" stroke-linecap="round"/>' +
+              '</svg>' +
+              '<p class="lock-date">' + t.date + '</p>' +
+              '<p class="lock-clock">' + t.time + '</p>' +
+            '</div>' +
+            '<div class="lock-notifications">' +
+              '<button type="button" class="notification" data-go="next">' +
+                '<span class="notif-icon">' + messagesAppIcon() + '</span>' +
+                '<span class="notif-main">' +
+                  '<span class="notif-meta"><span>Messages</span><span>now</span></span>' +
+                  '<span class="notif-title">' + DEMO.trust.senderId + '</span>' +
+                  '<span class="notif-body">' + m.preview + '</span>' +
+                '</span>' +
+              '</button>' + older +
+            '</div>' +
+            homeIndicator() +
+          '</div>' +
+        '</div>';
+    };
+  }
+
+  /* The trust's text thread: every message so far, newest at the bottom. */
+  function gThread(id) {
+    return function () {
+      var upTo = gSmsIndex(id), html = "";
+      for (var i = 0; i <= upTo; i++) {
+        var m = G_SMS[i], t = DEMO.timeline[m.at];
+        html += '<p class="sms-when"><b>' + t.date + '</b> ' + t.time + '</p>';
+        var body = m.text.replace("__LINK__",
+          '<a href="' + MYCHART_URL + '" target="_blank" rel="noopener">' + MYCHART_LABEL + '</a>');
+        body = body.replace("__SIGNUP__",
+          '<a href="' + SIGNUP_URL + '" target="_blank" rel="noopener">' + SIGNUP_LABEL + '</a>');
+        html += '<p class="sms-bubble">' + body + '</p>';
+      }
+      return '' +
+        '<div class="surface sms">' +
+          statusBar(DEMO.timeline[G_SMS[upTo].at].time) +
+          '<div class="sms-head">' +
+            '<span class="sms-back"><svg width="11" height="19" viewBox="0 0 11 19" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 1.5 2 9.5l7.5 8"/></svg></span>' +
+            '<span class="sms-avatar">GS</span>' +
+            '<span class="sms-name">' + DEMO.trust.senderId + '</span>' +
+          '</div>' +
+          '<div class="sms-thread">' + html + '</div>' +
+          '<div class="sms-compose"><span>Text Message</span></div>' +
+          homeIndicator() +
+        '</div>';
+    };
+  }
+
+  /* ---------- WhatsApp letter, with change and cancel in the chat ---------- */
+  var GW_SLOTS = ["Thursday 21 January at 2:30pm", "Monday 25 January at 9:15am", "Wednesday 27 January at 11:00am"];
+  var GW = { state: null };
+  function resetGw() { GW.state = { verifying: false, verified: false, why: false, log: [], slot: null, done: false }; }
+  resetGw();
+
+  function stepGWaChat() {
+    var s = GW.state, a = DEMO.appointment, p = DEMO.patient;
+    var html = '<div class="wa-sys">Messages are end-to-end encrypted. This business is verified by WhatsApp.</div>';
+    html += waIn(
+      '<span class="wa-kicker">New hospital letter</span>' +
+      '<span class="wa-title">A letter is waiting for you</span>' +
+      '<p>' + a.site + ' has sent ' + p.firstName + ' ' + p.lastName + ' a letter about his appointment.</p>' +
+      '<p>Before we show it, we need to check we are talking to the right person.</p>' +
+      '<span class="wa-small">Sent by Guy’s and St Thomas’ via DrDoctor &middot; Ref ' + WA.ref + '</span>',
+      [{ label: "Verify my identity", act: "g-verify", used: s.verifying || s.verified },
+       { label: "Why am I being asked?", act: "g-why", used: s.why }]);
+    if (s.why) {
+      html += waOut("Why am I being asked?");
+      html += waIn('<p>Hospital letters can include health information. Checking your date of birth and NHS number ' +
+        'makes sure only you can read it, even if someone else picks up your phone.</p>');
+    }
+    if (s.verifying || s.verified) {
+      html += waOut("Verify my identity");
+      html += waIn(
+        '<span class="wa-kicker">Secure check</span>' +
+        '<span class="wa-title">Confirm it’s you</span>' +
+        '<div class="wa-field"><label>Date of birth</label><span>' + WA.dob + '</span></div>' +
+        '<div class="wa-field"><label>NHS number</label><span>' + WA.nhs + '</span></div>' +
+        '<button type="button" class="wa-cta' + (s.verified ? " used" : "") + '"' +
+          (s.verified ? "" : ' data-wa="g-confirm"') + '>' +
+          (s.verified ? "Verified" : "Confirm and see my letter") + '</button>');
+    }
+    if (s.verified) {
+      var when = s.slot !== null ? GW_SLOTS[s.slot] : a.dateLong.replace(/(\d+)(st|nd|rd|th)/, "$1") + " at " + a.time;
+      html += waOut("&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull; sent securely");
+      html += waIn('<p>Thanks, ' + p.firstName + '. You are verified for the next 30 minutes.</p>');
+      html += waIn(
+        '<span class="wa-kicker">Appointment confirmed</span>' +
+        '<span class="wa-title">' + DEMO.specialty + ', first appointment</span>' +
+        '<dl class="wa-facts">' +
+          '<dt>Date</dt><dd>' + a.dateLong.replace(/(\d+)(st|nd|rd|th)/, "$1") + '</dd>' +
+          '<dt>Time</dt><dd>' + a.time + '. Please arrive 10 minutes early</dd>' +
+          '<dt>With</dt><dd>' + DEMO.clinicianFull + ', ' + DEMO.clinicianRole + '</dd>' +
+          '<dt>Where</dt><dd>' + DEMO.specialty + ' Outpatients, ' + a.site + '</dd>' +
+        '</dl>' +
+        '<span class="wa-small">Booked with you by phone &middot; Ref ' + WA.ref + '</span>');
+
+      var started = s.log.length > 0;
+      html += waIn('<p>Can you come to this appointment?</p>',
+        [{ label: "Yes, I’ll be there", act: "g-yes", used: started },
+         { label: "Change my appointment", act: "g-change", used: started },
+         { label: "Cancel my appointment", act: "g-cancel", used: started, danger: true }]);
+
+      for (var i = 0; i < s.log.length; i++) {
+        var e = s.log[i];
+        if (e === "yes") {
+          html += waOut("Yes, I’ll be there");
+          html += waIn('<p>Thank you. The clinic can see you have confirmed, so your slot is held. We will send you a reminder before the day.</p>',
+            [{ label: "Add to my calendar", act: "noop" }]);
+        } else if (e === "change") {
+          html += waOut("Change my appointment");
+          html += waIn('<p>No problem. These times are free with the cardiology team at ' + a.site + '. Tap one to move your appointment.</p>',
+            GW_SLOTS.map(function (sl, k) { return { label: sl, act: "g-slot-" + k, used: s.slot !== null }; }));
+        } else if (e === "moved") {
+          html += waOut(GW_SLOTS[s.slot]);
+          html += waIn('<span class="wa-kicker">Appointment changed</span>' +
+            '<span class="wa-title">Your new appointment</span>' +
+            '<p>' + when + ', ' + DEMO.specialty + ' Outpatients, ' + a.site + '.</p>' +
+            '<p>Your old slot has been released for another patient.</p>',
+            [{ label: "Add to my calendar", act: "noop" }]);
+        } else if (e === "cancel") {
+          html += waOut("Cancel my appointment");
+          html += waIn('<p>Are you sure you want to cancel? If you cancel, your slot goes to another patient and the cardiology team will be told.</p>',
+            [{ label: "Yes, cancel it", act: "g-cancel-yes", used: s.done, danger: true },
+             { label: "No, keep my appointment", act: "g-keep", used: s.done }]);
+        } else if (e === "cancelled") {
+          html += waOut("Yes, cancel it");
+          html += waIn('<p>Your appointment on ' + when + ' is cancelled, and the slot has been released. ' +
+            'The cardiology team will be in touch about what happens next.</p>');
+        } else if (e === "kept") {
+          html += waOut("No, keep my appointment");
+          html += waIn('<p>Your appointment is still booked for ' + when + '. See you then.</p>');
+        }
+      }
+    }
+    return '' +
+      '<div class="surface wa">' +
+        statusBar(WA.time) +
+        '<div class="wa-head">' +
+          '<span class="wa-back"><svg width="10" height="17" viewBox="0 0 10 17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5 2 8.5l6.5 7"/></svg></span>' +
+          '<span class="wa-avatar">GS</span>' +
+          '<span class="wa-who"><b>Guy’s and St Thomas’ ' + WA_TICK + '</b><span>Verified business account</span></span>' +
+          '<span class="wa-head-icons">' + icon("phone", 21, 1.6) + '</span>' +
+        '</div>' +
+        '<div class="wa-thread">' + html + '</div>' +
+        '<div class="wa-compose"><span class="field">Message</span>' +
+          '<span class="mic"><svg width="14" height="18" viewBox="0 0 14 18" fill="currentColor"><rect x="4" y="1" width="6" height="10" rx="3"/><path d="M1.5 8.5a5.5 5.5 0 0 0 11 0" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M7 14v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span></div>' +
+        homeIndicator() +
+      '</div>';
+  }
+
+  function stepGWaLock() {
+    var t = DEMO.timeline.appointmentBooked;
+    return '' +
+      '<div class="surface apple-lock">' +
+        '<div class="apple-wallpaper"></div>' +
+        statusBar("") +
+        '<div class="lock-body">' +
+          '<div class="lock-head">' +
+            '<svg class="padlock" width="15" height="19" viewBox="0 0 15 19" fill="none" stroke="currentColor" stroke-width="1.7">' +
+              '<rect x="1" y="7.6" width="13" height="10.4" rx="3.2" fill="currentColor" stroke="none"/>' +
+              '<path d="M4.1 7.6V5.1a3.4 3.4 0 0 1 6.8 0v2.5" stroke-linecap="round"/>' +
+            '</svg>' +
+            '<p class="lock-date">' + t.date + '</p>' +
+            '<p class="lock-clock">' + t.time + '</p>' +
+          '</div>' +
+          '<div class="lock-notifications">' +
+            '<button type="button" class="notification" data-go="next">' +
+              '<span class="notif-icon">' + waIcon(38) + '</span>' +
+              '<span class="notif-main">' +
+                '<span class="notif-meta"><span>WhatsApp</span><span>now</span></span>' +
+                '<span class="notif-title">Guy’s and St Thomas’</span>' +
+                '<span class="notif-body">You have a new letter about your cardiology appointment. Tap to confirm it is you and read it.</span>' +
+              '</span>' +
+            '</button>' +
+          '</div>' +
+          homeIndicator() +
+        '</div>' +
+      '</div>';
+  }
+
   var STEPS = [
+    { id: "g-lock-nhs", gstt: true, kind: "beat", tone: "dark", slide: 1, frame: null,
+      label: "Lock screen: NHS App message, referral accepted (not opened)", render: gNhsLock },
+    { id: "g-lock-accepted", gstt: true, kind: "interactive", tone: "dark", slide: 1, frame: null,
+      label: "Lock screen: two days later, the same news by text", render: gLock("accepted") },
+    { id: "g-sms-accepted", gstt: true, kind: "beat", tone: "light", slide: 1, frame: null,
+      label: "Messages: referral accepted, how to sign up to MyChart", render: gThread("accepted") },
+    { id: "g-lock-invite", gstt: true, kind: "interactive", tone: "dark", slide: 2, frame: null,
+      label: "Lock screen: invite to book in MyChart", render: gLock("invite") },
+    { id: "g-sms-invite", gstt: true, kind: "beat", tone: "light", slide: 2, frame: null,
+      label: "Messages: invite to book, with the MyChart link", render: gThread("invite") },
+    { id: "g-lock-call", gstt: true, kind: "interactive", tone: "dark", slide: 3, frame: null,
+      label: "Lock screen: not booked yet, we will call you", render: gLock("call") },
+    { id: "g-sms-call", gstt: true, kind: "beat", tone: "light", slide: 3, frame: null,
+      label: "Messages: we will call you to book", render: gThread("call") },
+    { id: "g-wa-lock", gstt: true, kind: "interactive", tone: "dark", slide: 4, frame: null,
+      label: "Lock screen: WhatsApp appointment letter", render: stepGWaLock },
+    { id: "g-wa-chat", gstt: true, kind: "interactive", tone: "light", slide: 4, frame: null,
+      label: "WhatsApp: confirmation letter, change or cancel", render: stepGWaChat },
     { id: "lock-quiet-quietopen", hidden: true, stage: true, kind: "beat", tone: "dark", slide: null, frame: null,
       label: "Lock screen: quiet, the story opens", clockKey: "quietOpen", render: stepLockQuiet("quietOpen") },
     { id: "lock-referral", hidden: true,   kind: "beat", tone: "dark",  slide: 3, frame: "66",
@@ -3864,6 +4183,7 @@ window.addEventListener("error", function (e) {
   var stagePanel = document.getElementById("stagePanel");
   var stageList = document.getElementById("stageList");
   var panelSteps = document.getElementById("presenterSteps");
+  STEPS.forEach(function (s) { if (!s.gstt) s.hidden = true; });
   var index = 0;
   function firstStep() { for (var f = 0; f < STEPS.length; f++) if (!STEPS[f].hidden && !STEPS[f].navPage) return f; return 0; }
   index = firstStep();
@@ -3883,6 +4203,9 @@ window.addEventListener("error", function (e) {
     if (step.form && formState(step.form).done && !FORMS[step.form].separateConfirm) kind = "beat";
     if (step.id === "contact-chat" && CHAT.state === "answered") kind = "beat";
     if (step.id === "wa-chat" && WA.state.confirmed) kind = "beat";
+    if (step.id === "g-wa-chat" && GW.state.done) kind = "beat";
+    var smsThread = stage.querySelector(".sms-thread");
+    if (smsThread) smsThread.scrollTop = smsThread.scrollHeight;
     var waThread = stage.querySelector(".wa-thread");
     if (waThread) {
       var waLast = waThread.lastElementChild;
@@ -3916,6 +4239,7 @@ window.addEventListener("error", function (e) {
        re-renders rather than calling goTo, so this does not disturb it. */
     if (i >= 0 && i < STEPS.length && STEPS[i].form && i !== index) delete FORM_STATE[STEPS[i].form];
     if (i >= 0 && i < STEPS.length && STEPS[i].id === "wa-chat" && i !== index && STEPS[index] && STEPS[index].id === "wa-lock") resetWa();
+    if (i >= 0 && i < STEPS.length && STEPS[i].id === "g-wa-chat" && i !== index && STEPS[index] && STEPS[index].id === "g-wa-lock") resetGw();
     if (i >= 0 && i < STEPS.length && STEPS[i].id === "appt-book-date" && i !== index && STEPS[index] && STEPS[index].id === "lock-booking-invite") resetApptPick();
     if (i >= 0 && i < STEPS.length && !STEPS[i].navPage) storyAt = i;
     NAV = navFrom(i);
@@ -3940,6 +4264,7 @@ window.addEventListener("error", function (e) {
     storyAt = index;
     resetApptPick();
     resetWa();
+    resetGw();
     MYCARE.tab = 0;
     resourcesRead = {};
     resetBooking();
@@ -3993,7 +4318,20 @@ window.addEventListener("error", function (e) {
     var wa = e.target.closest("[data-wa]");
     if (wa) {
       e.stopPropagation();
-      var wact = wa.getAttribute("data-wa"), ws = WA.state;
+      var wact = wa.getAttribute("data-wa"), ws = WA.state, gs = GW.state;
+      if (wact.indexOf("g-") === 0) {
+        if (wact === "g-verify") gs.verifying = true;
+        else if (wact === "g-why") gs.why = true;
+        else if (wact === "g-confirm") { gs.verified = true; gs.verifying = false; }
+        else if (wact === "g-yes") { gs.log.push("yes"); gs.done = true; }
+        else if (wact === "g-change") gs.log.push("change");
+        else if (wact.indexOf("g-slot-") === 0) { gs.slot = +wact.slice(7); gs.log.push("moved"); gs.done = true; }
+        else if (wact === "g-cancel") gs.log.push("cancel");
+        else if (wact === "g-cancel-yes") { gs.log.push("cancelled"); gs.done = true; }
+        else if (wact === "g-keep") { gs.log.push("kept"); gs.done = true; }
+        render();
+        return;
+      }
       if (wact === "verify") ws.verifying = true;
       else if (wact === "why") ws.why = true;
       else if (wact === "confirm") { ws.verified = true; ws.verifying = false; }
